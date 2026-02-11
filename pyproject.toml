@@ -1,6 +1,6 @@
 [project]
 name = "recognizex"
-version = "0.1.0"
+version = "0.2.0"
 description = "Standalone ML inference container for face detection and recognition"
 readme = "README.md"
 license = "AGPL-3.0-only"
