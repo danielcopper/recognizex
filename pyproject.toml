@@ -83,7 +83,7 @@ warn_return_any = true
 warn_unused_configs = true
 plugins = ["pydantic.mypy"]
 
-[tool.mypy.overrides]
+[[tool.mypy.overrides]]
 module = [
     "rawpy.*",
     "pdf2image.*",
