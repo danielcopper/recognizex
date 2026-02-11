@@ -1,0 +1,44 @@
+min_version = "2024.9.5"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tools]
+python = "3.13"
+uv = "latest"
+
+[tasks.install]
+description = "Install all dependencies"
+run = "uv sync"
+
+[tasks.serve]
+description = "Run the FastAPI dev server"
+run = "uv run uvicorn recognizex.main:app --reload --host 0.0.0.0 --port 8080"
+
+[tasks.test]
+description = "Run tests with coverage"
+run = "uv run pytest tests/ -v --cov=recognizex --cov-report=term-missing"
+
+[tasks.lint]
+description = "Run ruff linter"
+run = "uv run ruff check src/ tests/"
+
+[tasks.format]
+description = "Format code with ruff"
+run = "uv run ruff format src/ tests/"
+
+[tasks.format-check]
+description = "Check formatting without changing files"
+run = "uv run ruff format --check src/ tests/"
+
+[tasks.typecheck]
+description = "Run mypy type checker"
+run = "uv run mypy src/"
+
+[tasks.check]
+description = "Run all checks (lint + format + typecheck + test)"
+depends = ["lint", "format-check", "typecheck", "test"]
+
+[tasks.clean]
+description = "Remove build artifacts and caches"
+run = "rm -rf .mypy_cache .pytest_cache .ruff_cache htmlcov .coverage dist build *.egg-info"
