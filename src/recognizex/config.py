@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     max_file_size: int = Field(default=209_715_200, ge=1)
 
     # Model management
+    models_dir: str = Field(default="models")
     model_ttl: int = Field(default=300, ge=0)
     gpu_mem_limit: int = Field(default=2_147_483_648, ge=0)
 

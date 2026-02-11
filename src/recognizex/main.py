@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from recognizex.api.routes import router
 from recognizex.config import get_settings
 from recognizex.ml.inference import InferencePool
+from recognizex.ml.model_manager import OnnxModelManager
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +42,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     inference_pool = InferencePool(settings)
     app.state.inference_pool = inference_pool
 
+    model_manager = OnnxModelManager(settings)
+    app.state.model_manager = model_manager
+
     logger.info("RecognizeX ready")
     yield
 
     logger.info("Shutting down RecognizeX")
+    model_manager.shutdown()
     inference_pool.shutdown()
     logger.info("RecognizeX shutdown complete")
 

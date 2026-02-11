@@ -15,22 +15,13 @@ from recognizex.api.schemas import (
     ModelInfo,
     ModelsResponse,
 )
+from recognizex.ml.model_manager import MODEL_REGISTRY, OnnxModelManager
 
 if TYPE_CHECKING:
     from recognizex.config import Settings
     from recognizex.ml.inference import InferencePool
 
 router = APIRouter(prefix="/api/v1", dependencies=[Depends(verify_api_key)])
-
-_MODEL_REGISTRY: list[dict[str, str]] = [
-    {"name": "retinaface_resnet34", "task": "face_detection", "license": "MIT"},
-    {"name": "retinaface_mobilenetv2", "task": "face_detection", "license": "MIT"},
-    {"name": "scrfd_10g_kps", "task": "face_detection", "license": "Non-commercial (InsightFace)"},
-    {"name": "auraface_v1", "task": "face_recognition", "license": "Apache-2.0"},
-    {"name": "w600k_r50", "task": "face_recognition", "license": "Non-commercial (InsightFace)"},
-]
-
-_INSIGHTFACE_MODELS = {"scrfd_10g_kps", "w600k_r50"}
 
 
 def _get_settings(request: Request) -> Settings:
@@ -41,6 +32,11 @@ def _get_settings(request: Request) -> Settings:
 def _get_inference_pool(request: Request) -> InferencePool:
     pool: InferencePool = request.app.state.inference_pool
     return pool
+
+
+def _get_model_manager(request: Request) -> OnnxModelManager:
+    manager: OnnxModelManager = request.app.state.model_manager
+    return manager
 
 
 @router.post(
@@ -86,10 +82,11 @@ async def health(request: Request) -> HealthResponse:
     """Return service health status."""
     settings = _get_settings(request)
     pool = _get_inference_pool(request)
+    manager = _get_model_manager(request)
     return HealthResponse(
         status="ok",
         gpu=settings.device == "cuda",
-        models_loaded=[],
+        models_loaded=manager.get_loaded_models(),
         concurrent_requests=pool.active_count,
         queue_depth=pool.queue_depth,
     )
@@ -106,21 +103,20 @@ async def list_models(request: Request) -> ModelsResponse:
     active_models = {settings.face_detection_model, settings.face_recognition_model}
 
     models: list[ModelInfo] = []
-    for entry in _MODEL_REGISTRY:
-        name = entry["name"]
-        if name in active_models:
+    for spec in MODEL_REGISTRY.values():
+        if spec.name in active_models:
             model_status = "active"
-        elif name in _INSIGHTFACE_MODELS and not settings.accept_insightface_license:
+        elif spec.insightface and not settings.accept_insightface_license:
             model_status = "requires_license"
         else:
             model_status = "available"
 
         models.append(
             ModelInfo(
-                name=name,
-                task=entry["task"],
+                name=spec.name,
+                task=spec.task,
                 status=model_status,
-                license=entry["license"],
+                license=spec.license,
             )
         )
 
