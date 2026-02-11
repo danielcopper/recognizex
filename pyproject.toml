@@ -19,6 +19,7 @@ dependencies = [
     "python-magic>=0.4.27",
     "python-multipart>=0.0.18",
     "httpx>=0.28.0",
+    "huggingface-hub>=0.27.0",
 ]
 
 [project.optional-dependencies]
@@ -70,7 +71,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "T20"]
+"tests/**/*.py" = ["S101", "S108", "T20"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -88,6 +89,7 @@ module = [
     "rawpy.*",
     "pdf2image.*",
     "magic.*",
+    "onnxruntime.*",
 ]
 ignore_missing_imports = true
 

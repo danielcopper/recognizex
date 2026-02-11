@@ -17,6 +17,7 @@ from fastapi import FastAPI, status
 from recognizex.config import get_settings
 from recognizex.main import create_app
 from recognizex.ml.inference import InferencePool
+from recognizex.ml.model_manager import OnnxModelManager
 
 
 def _init_app_state(app: FastAPI, **env_overrides: str) -> None:
@@ -25,6 +26,7 @@ def _init_app_state(app: FastAPI, **env_overrides: str) -> None:
         settings = get_settings()
     app.state.settings = settings
     app.state.inference_pool = InferencePool(settings)
+    app.state.model_manager = OnnxModelManager(settings)
 
 
 async def _make_client(app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
