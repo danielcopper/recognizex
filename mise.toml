@@ -13,7 +13,7 @@ run = "uv sync"
 
 [tasks.serve]
 description = "Run the FastAPI dev server"
-run = "uv run uvicorn recognizex.main:app --reload --host 0.0.0.0 --port 8080"
+run = "uv run uvicorn recognizex.main:app --reload --host 0.0.0.0 --port 8082"
 
 [tasks.test]
 description = "Run tests with coverage"
